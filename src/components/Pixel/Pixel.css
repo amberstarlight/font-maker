@@ -1,0 +1,28 @@
+div .pixel input {
+	height: inherit;
+	width: inherit;
+	opacity: 0;
+	margin: 0;
+}
+
+.pixel {
+	display: block;
+	position: relative;
+	width: 48px;
+	height: 48px;
+	margin-bottom: 1px;
+	margin-right: 1px;
+}
+
+.pixel .checkbox-pixel {
+	height:inherit;
+	width:inherit;
+	border: 1px dotted #999;
+	position: absolute;
+	left: 0;
+	z-index: -999;
+}
+
+.pixel input:checked ~ .checkbox-pixel {
+	background-color: black;
+}

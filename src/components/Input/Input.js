@@ -1,14 +1,14 @@
 import React from 'react';
-import './SizeInput.css';
+import './Input.css';
 
-class SizeInput extends React.Component {
-	
+class Input extends React.Component {
+
 	render() {
 		return (
 			<div>
 				<label htmlFor={this.props.name}>{this.props.label}</label>
 				<input
-					type="number"
+					type={this.props.type}
 					min={this.props.min}
 					max={this.props.max}
 					id={this.props.name}
@@ -21,4 +21,4 @@ class SizeInput extends React.Component {
 	}
 }
 
-export default SizeInput;
+export default Input;

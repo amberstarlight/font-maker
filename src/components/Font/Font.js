@@ -1,6 +1,6 @@
 import React from 'react';
 import Char from '../Char';
-import SizeInput from '../SizeInput';
+import Input from '../Input';
 import Button from '../Button';
 import './Font.css';
 
@@ -8,8 +8,8 @@ class Font extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			width: 5,
-			height: 7,
+			fontWidth: 5,
+			fontHeight: 7,
 			pixelData: [
 				[
 					[0,1,1,1,1,1,0],
@@ -30,13 +30,12 @@ class Font extends React.Component {
 		};
 	}
 
-	handleWidthChange(event) {
-		this.setState({width: event.target.value});
-	}
-
-	handleHeightChange(event) {
-		this.setState({height: event.target.value});
-	}
+	handleInputChange(event) {
+    const target = event.target;
+    const value = target.type === 'checkbox' ? target.checked : target.value;
+    const name = target.name;
+    this.setState({[name]: value});
+  }
 
 	handlePixelChange(x, y) {
 		let pixelDataUpdated = this.state.pixelData;
@@ -68,27 +67,29 @@ class Font extends React.Component {
 	render() {
 		return (
 			<div>
-				<SizeInput
+				<Input
+					type="number"
 					name="fontWidth"
 					label="Font Width:"
-					value={this.state.width}
+					value={this.state.fontWidth}
 					min={1}
 					max={16}
-					onChange={this.handleWidthChange.bind(this)}
+					onChange={this.handleInputChange.bind(this)}
 				/>
 
-				<SizeInput
+				<Input
+					type="number"
 					name="fontHeight"
 					label="Font Height:"
-					value={this.state.height}
+					value={this.state.fontHeight}
 					min={1}
 					max={32}
-					onChange={this.handleHeightChange.bind(this)}
+					onChange={this.handleInputChange.bind(this)}
 				/>
 				<div className="container">
 					<Char
-						width={this.state.width}
-						height={this.state.height}
+						width={this.state.fontWidth}
+						height={this.state.fontHeight}
 						data={this.state.pixelData[this.state.currentChar]}
 						onChange={this.handlePixelChange.bind(this)}
 					/>

@@ -10,6 +10,7 @@ class Font extends React.Component {
 		this.state = {
 			fontWidth: 5,
 			fontHeight: 7,
+			currentChar: 0,
 			pixelData: [
 				[
 					[0,1,1,1,1,1,0],
@@ -19,14 +20,13 @@ class Font extends React.Component {
 					[0,1,1,1,1,1,0]
 				],
 				[
-					[0,1,1,1,1,1,0],
-					[1,0,0,0,0,0,1],
-					[1,0,0,0,0,0,1],
-					[1,0,0,0,0,0,1],
-					[0,1,1,1,1,1,0]
+					[0,0,0,0,0,0,0],
+					[0,1,0,0,0,0,1],
+					[1,1,1,1,1,1,1],
+					[0,0,0,0,0,0,1],
+					[0,0,0,0,0,0,0]
 				]
-			],
-			currentChar: 0
+			]
 		};
 	}
 
@@ -34,30 +34,72 @@ class Font extends React.Component {
     const target = event.target;
     const value = target.type === 'checkbox' ? target.checked : target.value;
     const name = target.name;
-    this.setState({[name]: value});
+    // this.setState({[name]: value});
+		if (name === "fontWidth") {
+			this.handleSizeChange(parseInt(value), this.state.fontHeight);
+		}
+		if (name === "fontHeight") {
+			this.handleSizeChange(this.state.fontWidth, parseInt(value));
+		}
   }
 
 	handlePixelChange(x, y) {
+		// todo: use .slice
 		let pixelDataUpdated = this.state.pixelData;
 		pixelDataUpdated[this.state.currentChar][x][y] = 1 - pixelDataUpdated[this.state.currentChar][x][y];
 		this.setState({pixelData: pixelDataUpdated});
 	}
 
+	handleSizeChange(newWidth, newHeight) {
+		let pixelDataUpdated = this.state.pixelData;
+		if (newHeight !== this.state.fontHeight) {
+			for (let i = 0; i < pixelDataUpdated.length; i++) {
+				let currentChar = pixelDataUpdated[i];
+				for (let x = 0; x < currentChar.length; x++) {
+					let currentCol = currentChar[x];
+					while (currentCol.length > newHeight) {
+						currentCol.pop();
+					}
+					while (currentCol.length < newHeight) {
+						currentCol.push(0);
+					}
+				}
+			}
+			this.setState({
+				fontHeight: newHeight,
+				pixelData: pixelDataUpdated
+			});
+		}
+		if (newWidth !== this.state.fontWidth) {
+			for (let i = 0; i < pixelDataUpdated.length; i++) {
+				let currentChar = pixelDataUpdated[i];
+				while (currentChar.length > newWidth) {
+					currentChar.pop();
+				}
+				while (currentChar.length < newWidth) {
+					let newArray = new Array(newHeight).fill(0);
+					currentChar.push(newArray);
+				}
+			}
+			this.setState({
+				fontWidth: newWidth,
+				pixelData: pixelDataUpdated
+			});
+		}
+	}
+
 	handleCharChange(button) {
 		if (button === "prev" && this.state.currentChar !== 0) {
-			this.setState({currentChar: this.state.currentChar - 1})
-		} else {
+			this.setState({currentChar: this.state.currentChar - 1});
+		} else if (button === "next") {
 			if ((this.state.currentChar + 1) > (this.state.pixelData.length - 1)) {
 				let pixelDataUpdated = this.state.pixelData;
-				pixelDataUpdated.push(
-					[
-						[0,0,0,0,0,0,0],
-						[0,0,0,0,0,0,0],
-						[0,0,0,0,0,0,0],
-						[0,0,0,0,0,0,0],
-						[0,0,0,0,0,0,0]
-					]
-				);
+				let newChar = [];
+				for (let x = 0; x < this.state.fontWidth; x++) {
+					let column = new Array(this.state.fontHeight).fill(0);
+					newChar.push(column);
+				}
+				pixelDataUpdated.push(newChar);
 				this.setState({pixelData: pixelDataUpdated});
 			}
 			this.setState({currentChar: this.state.currentChar + 1});
@@ -76,7 +118,6 @@ class Font extends React.Component {
 					max={16}
 					onChange={this.handleInputChange.bind(this)}
 				/>
-
 				<Input
 					type="number"
 					name="fontHeight"

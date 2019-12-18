@@ -5,8 +5,8 @@
 }
 
 .small div .pixel {
-	height: 1em;
-	width: 1em;
+	height: .75em;
+	width: .75em;
 }
 
 .small .pixel .checkbox-pixel {

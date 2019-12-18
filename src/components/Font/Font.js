@@ -39,6 +39,8 @@ class Font extends React.Component {
 			this.handleSizeChange(parseInt(value), this.state.fontHeight);
 		} else if (name === "fontHeight") {
 			this.handleSizeChange(this.state.fontWidth, parseInt(value));
+		} else if (name === "currentChar") {
+			this.handleCharInputChange(parseInt(value));
 		} else {
 			this.setState({[name]: value});
 		}
@@ -100,11 +102,17 @@ class Font extends React.Component {
 		}
 	}
 
-	// handleCharInputChange(char) {
-	// 	if (char > this.state.pixelData.length) {
-	//
-	// 	}
-	// }
+	handleCharInputChange(value) {
+		console.log(this.state.currentChar);
+		if (!value) {
+			this.setState({currentChar: 0});
+		} else {
+			while (value >= this.state.pixelData.length) {
+				this.addChar();
+			}
+			this.setState({currentChar: value});
+		}
+	}
 
 	addChar() {
 		let pixelDataUpdated = this.state.pixelData;
@@ -163,10 +171,10 @@ class Font extends React.Component {
 				<Input
 					type="number"
 					name="currentChar"
-					label="Character"
-					value={this.state.currentChar + 1}
+					label="Character:"
+					value={this.state.currentChar}
 					min={0}
-					onChange={this.handleCharChange.bind(this, "box")}
+					onChange={this.handleInputChange.bind(this)}
 				/>
 				<Button
 					name="Next"

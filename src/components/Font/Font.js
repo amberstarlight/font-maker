@@ -14,9 +14,9 @@ class Font extends React.Component {
 			pixelData: [
 				[
 					[0,1,1,1,1,1,0],
-					[1,0,0,0,0,0,1],
-					[1,0,0,0,0,0,1],
-					[1,0,0,0,0,0,1],
+					[1,0,0,0,1,0,1],
+					[1,0,0,1,0,0,1],
+					[1,0,1,0,0,0,1],
 					[0,1,1,1,1,1,0]
 				],
 				[
@@ -34,12 +34,13 @@ class Font extends React.Component {
     const target = event.target;
     const value = target.type === 'checkbox' ? target.checked : target.value;
     const name = target.name;
-    // this.setState({[name]: value});
+
 		if (name === "fontWidth") {
 			this.handleSizeChange(parseInt(value), this.state.fontHeight);
-		}
-		if (name === "fontHeight") {
+		} else if (name === "fontHeight") {
 			this.handleSizeChange(this.state.fontWidth, parseInt(value));
+		} else {
+			this.setState({[name]: value});
 		}
   }
 
@@ -88,22 +89,32 @@ class Font extends React.Component {
 		}
 	}
 
-	handleCharChange(button) {
-		if (button === "prev" && this.state.currentChar !== 0) {
+	handleCharChange(element) {
+		if (element === "prev" && this.state.currentChar !== 0) {
 			this.setState({currentChar: this.state.currentChar - 1});
-		} else if (button === "next") {
+		} else if (element === "next") {
 			if ((this.state.currentChar + 1) > (this.state.pixelData.length - 1)) {
-				let pixelDataUpdated = this.state.pixelData;
-				let newChar = [];
-				for (let x = 0; x < this.state.fontWidth; x++) {
-					let column = new Array(this.state.fontHeight).fill(0);
-					newChar.push(column);
-				}
-				pixelDataUpdated.push(newChar);
-				this.setState({pixelData: pixelDataUpdated});
+				this.addChar();
 			}
 			this.setState({currentChar: this.state.currentChar + 1});
 		}
+	}
+
+	// handleCharInputChange(char) {
+	// 	if (char > this.state.pixelData.length) {
+	//
+	// 	}
+	// }
+
+	addChar() {
+		let pixelDataUpdated = this.state.pixelData;
+		let newChar = [];
+		for (let x = 0; x < this.state.fontWidth; x++) {
+			let column = new Array(this.state.fontHeight).fill(0);
+			newChar.push(column);
+		}
+		pixelDataUpdated.push(newChar);
+		this.setState({pixelData: pixelDataUpdated});
 	}
 
 	render() {
@@ -134,12 +145,28 @@ class Font extends React.Component {
 						data={this.state.pixelData[this.state.currentChar]}
 						onChange={this.handlePixelChange.bind(this)}
 					/>
+					<div className="small">
+						<Char
+							width={this.state.fontWidth}
+							height={this.state.fontHeight}
+							data={this.state.pixelData[this.state.currentChar]}
+							onChange={this.handlePixelChange.bind(this)}
+						/>
+					</div>
 				</div>
 				<Button
 					name="Prev"
 					type="button"
 					disabled={false}
 					onClick={this.handleCharChange.bind(this, "prev")}
+				/>
+				<Input
+					type="number"
+					name="currentChar"
+					label="Character"
+					value={this.state.currentChar + 1}
+					min={0}
+					onChange={this.handleCharChange.bind(this, "box")}
 				/>
 				<Button
 					name="Next"

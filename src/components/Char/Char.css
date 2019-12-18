@@ -3,3 +3,12 @@
 	flex-direction: row;
 	margin: 1em;
 }
+
+.small div .pixel {
+	height: 1em;
+	width: 1em;
+}
+
+.small .pixel .checkbox-pixel {
+	border: 1px solid #ccc;
+}

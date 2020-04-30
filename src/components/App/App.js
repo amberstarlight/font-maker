@@ -5,7 +5,7 @@ import Font from '../Font';
 function App() {
   return (
     <div className="App">
-			<Font />
+      <Font />
     </div>
   );
 }

@@ -2,7 +2,6 @@ import React from 'react';
 import Column from '../Column';
 import './Char.css';
 
-
 function Char(props) {
   let columns = [];
   for (let i = 0; i < props.width; i++) {

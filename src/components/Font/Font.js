@@ -1,61 +1,44 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Char from '../Char';
 import Input from '../Input';
 import Button from '../Button';
 import './Font.css';
 
-class Font extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      fontWidth: 5,
-      fontHeight: 7,
-      currentChar: 0,
-      pixelData: [
-        [
-          [0,1,1,1,1,1,0],
-          [1,0,0,0,1,0,1],
-          [1,0,0,1,0,0,1],
-          [1,0,1,0,0,0,1],
-          [0,1,1,1,1,1,0]
-        ],
-        [
-          [0,0,0,0,0,0,0],
-          [0,1,0,0,0,0,1],
-          [1,1,1,1,1,1,1],
-          [0,0,0,0,0,0,1],
-          [0,0,0,0,0,0,0]
-        ]
+function Font() {
+  const [fontData, setFontData] = useState({
+    width: 5,
+    height: 7,
+    currentChar: 0,
+    pixelData: [
+      [
+        [0,1,1,1,1,1,0],
+        [1,0,0,0,1,0,1],
+        [1,0,0,1,0,0,1],
+        [1,0,1,0,0,0,1],
+        [0,1,1,1,1,1,0]
+      ],
+      [
+        [0,0,0,0,0,0,0],
+        [0,1,0,0,0,0,1],
+        [1,1,1,1,1,1,1],
+        [0,0,0,0,0,0,1],
+        [0,0,0,0,0,0,0]
       ]
-    };
+    ]
+  });
+
+  const updateFontData = (newData) => {
+    setFontData(currentState => {
+      return {
+        ...currentState,
+        ...newData
+      }
+    })
   }
 
-  handleInputChange(event) {
-    const target = event.target;
-    const value = target.type === 'checkbox' ? target.checked : target.value;
-    const name = target.name;
-
-    if (name === "fontWidth") {
-      this.handleSizeChange(parseInt(value), this.state.fontHeight);
-    } else if (name === "fontHeight") {
-      this.handleSizeChange(this.state.fontWidth, parseInt(value));
-    } else if (name === "currentChar") {
-      this.handleCharInputChange(parseInt(value));
-    } else {
-      this.setState({ [name]: value });
-    }
-  }
-
-  handlePixelChange(x, y) {
-    // todo: use .slice
-    let pixelDataUpdated = this.state.pixelData;
-    pixelDataUpdated[this.state.currentChar][x][y] = 1 - pixelDataUpdated[this.state.currentChar][x][y];
-    this.setState({ pixelData: pixelDataUpdated });
-  }
-
-  handleSizeChange(newWidth, newHeight) {
-    let pixelDataUpdated = this.state.pixelData;
-    if (newHeight !== this.state.fontHeight) {
+  const handleSizeChange = (newWidth, newHeight) => {
+    let pixelDataUpdated = fontData.pixelData.slice();
+    if (newHeight !== fontData.height) {
       for (let i = 0; i < pixelDataUpdated.length; i++) {
         let currentChar = pixelDataUpdated[i];
         for (let x = 0; x < currentChar.length; x++) {
@@ -68,12 +51,14 @@ class Font extends React.Component {
           }
         }
       }
-      this.setState({
-        fontHeight: newHeight,
+
+      updateFontData({
+        height: newHeight,
         pixelData: pixelDataUpdated
       });
     }
-    if (newWidth !== this.state.fontWidth) {
+
+    if (newWidth !== fontData.width) {
       for (let i = 0; i < pixelDataUpdated.length; i++) {
         let currentChar = pixelDataUpdated[i];
         while (currentChar.length > newWidth) {
@@ -84,108 +69,115 @@ class Font extends React.Component {
           currentChar.push(newArray);
         }
       }
-      this.setState({
-        fontWidth: newWidth,
+
+      updateFontData({
+        width: newWidth,
         pixelData: pixelDataUpdated
       });
     }
   }
 
-  handleCharChange(element) {
-    if (element === "prev" && this.state.currentChar !== 0) {
-      this.setState({ currentChar: this.state.currentChar - 1 });
-    } else if (element === "next") {
-      if ((this.state.currentChar + 1) > (this.state.pixelData.length - 1)) {
-        this.addChar();
-      }
-      this.setState({ currentChar: this.state.currentChar + 1 });
-    }
-  }
-
-  handleCharInputChange(value) {
-    if (!value) {
-      this.setState({ currentChar: 0 });
+  const handleCharInput = (value) => {
+    if (value === undefined || null) {
+      setFontData((currentState) => {
+        return {
+          ...currentState,
+          currentChar: 0
+        }
+      })
     } else {
-      while (value >= this.state.pixelData.length) {
-        this.addChar();
+      let lengthToMatch = fontData.pixelData.length
+      for(let i = value; i <= lengthToMatch; i++){
+        addChar();
       }
-      this.setState({ currentChar: value });
+
+      updateFontData({
+        currentChar: value
+      });
     }
   }
 
-  addChar() {
-    let pixelDataUpdated = this.state.pixelData;
+  const addChar = () => {
+    let pixelDataUpdated = fontData.pixelData.slice();
     let newChar = [];
-    for (let x = 0; x < this.state.fontWidth; x++) {
-      let column = new Array(this.state.fontHeight).fill(0);
+    for (let x = 0; x < fontData.width; x++) {
+      let column = new Array(fontData.height).fill(0);
       newChar.push(column);
     }
     pixelDataUpdated.push(newChar);
-    this.setState({ pixelData: pixelDataUpdated });
+    updateFontData({
+      pixelData: pixelDataUpdated
+    });
+  };
+
+  const handlePixelChange = (x, y) => {
+    let pixelDataUpdated = fontData.pixelData.slice();
+    pixelDataUpdated[fontData.currentChar][x][y] = 1 - pixelDataUpdated[fontData.currentChar][x][y];
+    updateFontData({
+      pixelData: pixelDataUpdated
+    })
   }
 
-  render() {
-    return (
-      <div>
-        <Input
-          type="number"
-          name="fontWidth"
-          label="Font Width:"
-          value={this.state.fontWidth}
-          min={1}
-          max={16}
-          onChange={this.handleInputChange.bind(this)}
+  return (
+    <div>
+      <Input
+        type="number"
+        name="fontWidth"
+        label="Font Width:"
+        value={fontData.width}
+        min={1}
+        max={16}
+        onChange={(event) => handleSizeChange(event.target.value, fontData.height)}
+      />
+      <Input
+        type="number"
+        name="fontHeight"
+        label="Font Height:"
+        value={fontData.height}
+        min={1}
+        max={32}
+        onChange={(event) => handleSizeChange(fontData.width, event.target.value)}
+      />
+      <div className="container">
+        <Char
+          width={fontData.width}
+          height={fontData.height}
+          data={fontData.pixelData[fontData.currentChar]}
+          onChange={handlePixelChange}
         />
-        <Input
-          type="number"
-          name="fontHeight"
-          label="Font Height:"
-          value={this.state.fontHeight}
-          min={1}
-          max={32}
-          onChange={this.handleInputChange.bind(this)}
-        />
-        <div className="container">
+        <div className="small">
           <Char
-            width={this.state.fontWidth}
-            height={this.state.fontHeight}
-            data={this.state.pixelData[this.state.currentChar]}
-            onChange={this.handlePixelChange.bind(this)}
+            width={fontData.width}
+            height={fontData.height}
+            data={fontData.pixelData[fontData.currentChar]}
+            onChange={handlePixelChange}
           />
-          <div className="small">
-            <Char
-              width={this.state.fontWidth}
-              height={this.state.fontHeight}
-              data={this.state.pixelData[this.state.currentChar]}
-              onChange={this.handlePixelChange.bind(this)}
-            />
-          </div>
         </div>
-        <Button
-          text="Previous"
-          name="Prev"
-          type="button"
-          disabled={false}
-          onClick={this.handleCharChange.bind(this, "prev")}
-        />
-        <Input
-          type="number"
-          name="currentChar"
-          label="Character:"
-          value={this.state.currentChar}
-          min={0}
-          onChange={this.handleInputChange.bind(this)}
-        />
-        <Button
-          text="Next"
-          name="Next"
-          type="button"
-          disabled={false}
-          onClick={this.handleCharChange.bind(this, "next")}
-        />
       </div>
-    );
-  }
+      <Button
+        text="Previous"
+        name="Prev"
+        type="button"
+        disabled={fontData.currentChar <= 0}
+        onClick={() => handleCharInput(fontData.currentChar - 1)}
+      />
+      <Input
+        type="number"
+        name="currentChar"
+        label="Character:"
+        value={fontData.currentChar}
+        min={0}
+        onChange={(event) => handleCharInput(event.target.value)}
+      />
+      <Button
+        text="Next"
+        name="Next"
+        type="button"
+        disabled={false}
+        onClick={() => handleCharInput(fontData.currentChar + 1)}
+      />
+    </div>
+  );
 }
 
 export default Font;

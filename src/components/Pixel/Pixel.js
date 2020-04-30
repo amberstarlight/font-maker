@@ -7,7 +7,8 @@ function Pixel(props) {
       <input
         type="checkbox"
         checked={props.data}
-        onChange={() => props.onChange(props.xValue, props.yValue)}/>
+        onChange={() => props.onChange(props.xValue, props.yValue)}
+      />
       <span className="checkbox-pixel"></span>
     </div>
   );

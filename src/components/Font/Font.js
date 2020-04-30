@@ -162,6 +162,7 @@ class Font extends React.Component {
           </div>
         </div>
         <Button
+          text="Previous"
           name="Prev"
           type="button"
           disabled={false}
@@ -176,6 +177,7 @@ class Font extends React.Component {
           onChange={this.handleInputChange.bind(this)}
         />
         <Button
+          text="Next"
           name="Next"
           type="button"
           disabled={false}

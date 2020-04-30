@@ -1,6 +1,13 @@
 {
   "name": "font-maker",
-  "version": "0.1.0",
+  "version": "0.2.0",
+  "description": "React app to create bitmap fonts for embedded systems.",
+  "repository": "https://github.com/amberstarlight/font-maker.git",
+  "author": {
+    "name": "Amber Holly",
+    "email": "amber@amber.vision"
+  },
+  "license": "MIT",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^4.2.4",
@@ -19,7 +26,7 @@
     "lint-fix": "npx eslint ./src/ --fix"
   },
   "eslintConfig": {
-    "extends": "react-app"
+    "extends": "react-app" 
   },
   "browserslist": {
     "production": [

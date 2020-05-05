@@ -3,7 +3,42 @@ import Char from '../Char';
 import Input from '../Input';
 import Button from '../Button';
 import './Font.css';
+import licence from '../../util/template.js';
 
+const padder = (input, desiredLength) => {
+  let mutatedInput = input;
+  for (let i = input.length; i < desiredLength; i++) {
+    mutatedInput = `0${mutatedInput}`;
+  }
+  return mutatedInput;
+}
+
+const fontToString = (fontData) => new Promise(resolve => {
+  const header = [fontData.width.toString(), fontData.height.toString()];
+  let numCharsHEX = padder(fontData.pixelData.length.toString(16), 4).toUpperCase();
+
+  let thirdByte = "0x" + numCharsHEX.substring(2,4);
+  let fourthByte = "0x" + numCharsHEX.substring(0,2);
+
+  header.push(thirdByte, fourthByte)
+
+  let rawFontData = [];
+
+  for (let char of fontData.pixelData) {
+    for (let col of char) {
+      let binary = col.join('');
+      let paddedHex = padder(parseInt(binary, 2).toString(16), 2);
+      let hex = `0x${paddedHex.toUpperCase()}`;
+      rawFontData.push(hex);
+    }
+  }
+
+  let fontArray = [];
+  fontArray.push(...header, ...rawFontData);
+
+  resolve(licence("<Your Name>", fontArray, fontData.width, fontData.height))
+});
+  
 function Font() {
   const [fontData, setFontData] = useState({
     width: 5,
@@ -27,7 +62,10 @@ function Font() {
     ]
   });
 
+  const [downloadReady, setDownloadReady] = useState(false);
+
   const updateFontData = (newData) => {
+    setDownloadReady(false);
     setFontData(currentState => {
       return {
         ...currentState,
@@ -53,7 +91,7 @@ function Font() {
       }
 
       updateFontData({
-        height: newHeight,
+        height: parseInt(newHeight),
         pixelData: pixelDataUpdated
       });
     }
@@ -71,14 +109,14 @@ function Font() {
       }
 
       updateFontData({
-        width: newWidth,
+        width: parseInt(newWidth),
         pixelData: pixelDataUpdated
       });
     }
   }
 
   const handleCharInput = (value) => {
-    if (value === undefined || null) {
+    if (value === undefined || value === null || value === "") {
       setFontData((currentState) => {
         return {
           ...currentState,
@@ -86,25 +124,30 @@ function Font() {
         }
       })
     } else {
-      let lengthToMatch = fontData.pixelData.length
-      for(let i = value; i <= lengthToMatch; i++){
-        addChar();
+      const intVal = parseInt(value);
+      const charsToAdd = intVal - (fontData.pixelData.length-1);
+      if (charsToAdd > 0) {
+        addChar(charsToAdd);
       }
 
       updateFontData({
-        currentChar: value
+        currentChar: intVal
       });
     }
   }
 
-  const addChar = () => {
+  const addChar = (value) => {
     let pixelDataUpdated = fontData.pixelData.slice();
-    let newChar = [];
-    for (let x = 0; x < fontData.width; x++) {
-      let column = new Array(fontData.height).fill(0);
-      newChar.push(column);
+
+    for (let i = 0; i < value; i++) {
+      let newChar = [];
+      for (let x = 0; x < fontData.width; x++) {
+        let column = new Array(fontData.height).fill(0);
+        newChar.push(column);
+      }
+      pixelDataUpdated.push(newChar);
     }
-    pixelDataUpdated.push(newChar);
+
     updateFontData({
       pixelData: pixelDataUpdated
     });
@@ -113,6 +156,17 @@ function Font() {
   const handlePixelChange = (x, y) => {
     let pixelDataUpdated = fontData.pixelData.slice();
     pixelDataUpdated[fontData.currentChar][x][y] = 1 - pixelDataUpdated[fontData.currentChar][x][y];
+    updateFontData({
+      pixelData: pixelDataUpdated
+    })
+  }
+
+
+  const clearChar = () => {
+    let pixelDataUpdated = fontData.pixelData.slice();
+    for (const col of pixelDataUpdated[fontData.currentChar]) {
+      col.fill(0);
+    }
     updateFontData({
       pixelData: pixelDataUpdated
     })
@@ -154,28 +208,54 @@ function Font() {
           />
         </div>
       </div>
-      <Button
-        text="Previous"
-        name="Prev"
-        type="button"
-        disabled={fontData.currentChar <= 0}
-        onClick={() => handleCharInput(fontData.currentChar - 1)}
-      />
-      <Input
-        type="number"
-        name="currentChar"
-        label="Character:"
-        value={fontData.currentChar}
-        min={0}
-        onChange={(event) => handleCharInput(event.target.value)}
-      />
-      <Button
-        text="Next"
-        name="Next"
-        type="button"
-        disabled={false}
-        onClick={() => handleCharInput(fontData.currentChar + 1)}
-      />
+      <div>
+        <Button
+          text="Previous"
+          name="Prev"
+          type="button"
+          disabled={fontData.currentChar <= 0}
+          onClick={() => handleCharInput(fontData.currentChar - 1)}
+        />
+        <Input
+          type="number"
+          name="currentChar"
+          label="Character:"
+          value={fontData.currentChar}
+          min={0}
+          onChange={(event) => handleCharInput(event.target.value)}
+        />
+        <Button
+          text="Next"
+          name="Next"
+          type="button"
+          disabled={false}
+          onClick={() => handleCharInput(fontData.currentChar + 1)}
+        />
+      </div>
+      <br></br>
+      <div>
+        {downloadReady ? <a
+          download={"MYCOOLFONT.h"}
+          href={downloadReady}
+          onClick= {() => setDownloadReady(false)}
+        >
+          Download
+        </a> : 
+          <Button
+            text={downloadReady ? "Download" : "Convert"}
+            onClick={() => {
+              fontToString(fontData).then(file => {
+                setDownloadReady(URL.createObjectURL(new Blob([file])))
+              })
+            }}
+          />}
+        <Button
+          text="Clear"
+          onClick={() => clearChar()}
+        />
+      </div>
+      
+      
     </div>
   );
 }
